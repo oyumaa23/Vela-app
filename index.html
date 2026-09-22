@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vela — Your numbers already know.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F1E8;
+    --surface:#FAF8F2;
+    --ink:#171613;
+    --muted:#747068;
+    --line:#D8D2C7;
+    --pop:#F05A1F;
+    --love:#E9A6AA;
+    --money:#8BA47A;
+    --ancestral:#91B2C8;
+    --purpose:#C5A263;
+    --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:24px; --sp6:32px; --sp7:48px; --sp8:64px;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Manrope',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,.serif{font-family:'Playfair Display',serif;}
+  .wrap{max-width:520px;margin:0 auto;padding:var(--sp5) var(--sp5) var(--sp8);}
+
+  /* ---------- buttons: tactile, restrained ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--pop);color:#FFF8F2;border:none;font-family:'Manrope';
+    font-weight:600;font-size:15px;
+    padding:15px 22px;border-radius:10px;cursor:pointer;width:100%;
+    transition:transform .08s ease,background .15s;
+  }
+  .btn:hover{background:#D14E19;}
+  .btn:active{transform:scale(.98) translateY(1px);}
+  .btn:disabled{opacity:.5;cursor:default;transform:none;}
+  .btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+  .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--ink);}
+  .btn.secondary:hover{background:rgba(23,22,19,0.04);}
+  .btn .arrow{transition:transform .12s ease;}
+  .btn:hover .arrow{transform:translateX(2px);}
+
+  /* ---------- opening ---------- */
+  .top-row{display:flex;justify-content:space-between;align-items:flex-start;padding-top:var(--sp5);}
+  .eyebrow{font-family:'Manrope';font-weight:700;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);line-height:1.6;text-align:right;}
+  .hero-symbol{display:flex;justify-content:center;margin:var(--sp6) 0 var(--sp5);}
+  .wordmark{font-size:44px;font-weight:800;text-align:center;margin:0 0 4px;letter-spacing:.01em;}
+  .wordmark-sub{text-align:center;font-family:'Manrope';font-weight:700;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0 0 var(--sp6);}
+  .headline{font-size:27px;font-weight:700;text-align:center;line-height:1.2;margin:0 0 var(--sp5);}
+  .hero-ctas{display:flex;flex-direction:column;gap:10px;margin-top:var(--sp5);}
+  .footline{text-align:center;font-family:'Manrope';font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:var(--sp6);}
+
+  .sub-status{display:flex;align-items:center;justify-content:center;gap:10px;font-size:12.5px;color:var(--muted);margin-bottom:var(--sp5);}
+  .sub-status a{color:var(--pop);text-decoration:none;border-bottom:1px solid var(--pop);}
+  .tabs{display:flex;justify-content:center;gap:var(--sp6);margin-bottom:var(--sp6);border-bottom:1px solid var(--line);}
+  .tab-btn{background:none;border:none;color:var(--muted);font-family:'Manrope';font-size:14px;font-weight:600;padding:0 0 14px;cursor:pointer;border-bottom:2px solid transparent;}
+  .tab-btn.active{color:var(--ink);border-bottom-color:var(--pop);}
+  .tab-btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:var(--sp6) var(--sp5);}
+  .field-row{margin-bottom:var(--sp5);}
+  label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:var(--sp2);}
+  input[type=date],input[type=text]{
+    width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    color:var(--ink);font-family:'Manrope';font-size:16px;padding:12px 12px;outline:none;
+    transition:border-color .15s;
+  }
+  input:focus{border-color:var(--pop);}
+  .hint{color:#B14A2C;font-size:13px;margin-top:-8px;margin-bottom:var(--sp4);display:none;}
+
+  /* ---------- matrix chart ---------- */
+  .chart-stage{display:flex;justify-content:center;margin:var(--sp2) 0 var(--sp2);}
+  .chart-stage svg{animation:revealChart .6s ease both;}
+  @keyframes revealChart{from{opacity:0;transform:scale(.94);}to{opacity:1;transform:scale(1);}}
+  @media (prefers-reduced-motion:reduce){.chart-stage svg{animation:none;}}
+  .point-num{font-family:'Playfair Display';font-weight:700;font-size:14px;fill:var(--ink);}
+  .point-label{font-family:'Manrope';font-weight:600;font-size:8px;fill:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+  .chart-date{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:var(--sp2);}
+  .name-tag{text-align:center;font-family:'Playfair Display';font-weight:700;color:var(--ink);font-size:20px;margin-bottom:var(--sp2);}
+
+  /* ---------- chapter list ---------- */
+  .chapters{margin-top:var(--sp6);border-top:1px solid var(--line);}
+  .chapter-row{
+    display:flex;align-items:center;gap:var(--sp4);padding:var(--sp4) var(--sp1);
+    border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;
+    width:100%;text-align:left;font-family:'Manrope';
+  }
+  .chapter-row:focus-visible{outline:2px solid var(--ink);outline-offset:-2px;}
+  .chapter-num{
+    width:30px;height:30px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display';font-weight:700;font-size:13px;color:var(--ink);
+    border:1.5px solid var(--cat,var(--line));
+  }
+  .chapter-body{flex:1;min-width:0;}
+  .chapter-title{font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;margin-bottom:2px;}
+  .chapter-desc{font-size:12.5px;color:var(--muted);line-height:1.4;}
+  .chapter-row.locked{opacity:.55;}
+  .chapter-chevron{flex-shrink:0;}
+
+  /* ---------- bottom sheet ---------- */
+  .sheet-backdrop{
+    position:fixed;inset:0;background:rgba(23,22,19,0.35);z-index:40;
+    opacity:0;pointer-events:none;transition:opacity .2s ease;
+  }
+  .sheet-backdrop.open{opacity:1;pointer-events:auto;}
+  .sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:41;
+    background:var(--surface);border-radius:18px 18px 0 0;
+    max-width:520px;margin:0 auto;
+    max-height:82vh;overflow-y:auto;
+    padding:var(--sp5) var(--sp5) var(--sp7);
+    transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.3,1);
+    box-shadow:0 -8px 30px rgba(23,22,19,0.12);
+  }
+  .sheet.open{transform:translateY(0);}
+  @media (prefers-reduced-motion:reduce){.sheet{transition:none;}.sheet-backdrop{transition:none;}}
+  .sheet-handle{width:36px;height:4px;background:var(--line);border-radius:4px;margin:0 auto var(--sp5);}
+  .sheet-close{
+    position:absolute;top:var(--sp4);right:var(--sp4);background:none;border:none;cursor:pointer;
+    width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--muted);
+  }
+  .sheet-close:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+  .sheet-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:var(--sp3);}
+  .sheet-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display';font-weight:700;font-size:15px;color:var(--ink);border:1.5px solid var(--cat,var(--line));}
+  .sheet-title{font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+  .sheet-body{font-family:'Playfair Display';font-size:18px;line-height:1.65;color:var(--ink);white-space:pre-wrap;}
+  .sheet-body.loading{font-family:'Manrope';font-size:14px;color:var(--muted);font-style:italic;}
+
+  .chat-box{margin-top:var(--sp6);}
+  .chat-log{display:flex;flex-direction:column;gap:var(--sp3);max-height:420px;overflow-y:auto;padding:2px 0 var(--sp4);}
+  .msg{max-width:88%;padding:11px 14px;font-size:14.5px;line-height:1.5;border-radius:14px;}
+  .msg.user{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:4px;}
+  .msg.assistant{align-self:flex-start;background:var(--bg);border:1px solid var(--line);font-family:'Playfair Display';font-size:16px;color:var(--ink);border-bottom-left-radius:4px;}
+  .msg.assistant.loading{color:var(--muted);font-style:italic;font-family:'Manrope';font-size:14px;}
+  .chat-input-row{display:flex;gap:10px;margin-top:var(--sp3);}
+  .chat-input-row input{flex:1;}
+  .chat-input-row button{width:auto;padding:12px 20px;}
+
+  .compat-people{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp5);}
+  @media (max-width:480px){.compat-people{grid-template-columns:1fr;}}
+  .compat-vs{text-align:center;font-family:'Playfair Display';font-weight:700;color:var(--ink);font-size:18px;margin:var(--sp5) 0 var(--sp3);}
+  .footnote{text-align:center;color:var(--muted);font-size:11px;margin-top:var(--sp7);line-height:1.7;}
+
+  /* ---------- compatibility score ---------- */
+  .overall{text-align:center;margin:var(--sp3) 0 var(--sp2);}
+  .overall .num{font-family:'Playfair Display';font-weight:800;font-size:46px;color:var(--pop);line-height:1;}
+  .overall .label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+  .metric-row{margin-bottom:var(--sp4);}
+  .metric-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .metric-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);}
+  .metric-score{font-family:'Playfair Display';font-weight:700;font-size:14px;color:var(--ink);}
+  .metric-track{height:4px;background:var(--line);border-radius:4px;overflow:hidden;}
+  .metric-fill{height:100%;border-radius:4px;}
+
+  .paywall{text-align:center;padding:var(--sp5) var(--sp4);background:var(--bg);border:1px dashed var(--line);border-radius:10px;margin-top:var(--sp3);}
+  .paywall p{color:var(--ink);font-size:13.5px;margin:0 0 var(--sp4);line-height:1.55;}
+  .paywall .btn{width:auto;padding:12px 22px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top-row">
+    <svg width="16" height="16" viewBox="0 0 24 24"><path d="M12,1 L14,10 L23,12 L14,14 L12,23 L10,14 L1,12 L10,10 Z" fill="none" stroke="var(--purpose)" stroke-width="1.4"/></svg>
+    <div class="eyebrow">A higher<br>you awaits</div>
+  </div>
+
+  <div class="hero-symbol">
+    <svg width="90" height="90" viewBox="0 0 120 120">
+      <polygon points="60,14 106,60 60,106 14,60" fill="none" stroke="var(--ink)" stroke-width="1" opacity="0.5"/>
+      <circle cx="60" cy="60" r="9" fill="var(--pop)"/>
+      <circle cx="60" cy="14" r="5" fill="var(--ancestral)"/>
+      <circle cx="106" cy="60" r="5" fill="var(--love)"/>
+      <circle cx="60" cy="106" r="5" fill="var(--purpose)"/>
+      <circle cx="14" cy="60" r="5" fill="var(--money)"/>
+    </svg>
+  </div>
+
+  <h1 class="wordmark">VELA</h1>
+  <div class="wordmark-sub">Matrix of Destiny</div>
+  <h2 class="headline">Your numbers<br>already know.</h2>
+
+  <div class="hero-ctas">
+    <button class="btn" id="cta-chart">Read my chart <span class="arrow">→</span></button>
+    <button class="btn secondary" id="cta-compat">Check compatibility <span class="arrow">→</span></button>
+  </div>
+  <div class="footline">Numbers &nbsp;+&nbsp; People &nbsp;+&nbsp; Purpose</div>
+
+  <div style="margin-top:var(--sp8);">
+  <div class="sub-status" id="sub-status"></div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="chart">Your Chart</button>
+    <button class="tab-btn" data-tab="compat">Compatibility</button>
+  </div>
+
+  <div class="panel active" id="panel-chart">
+    <div class="card">
+      <div class="field-row"><label for="c-name">Name</label><input type="text" id="c-name" placeholder="Who is this chart for?"></div>
+      <div class="field-row"><label for="c-date">Date of birth</label><input type="date" id="c-date"></div>
+      <div class="hint" id="c-hint">Enter your date of birth.</div>
+      <button class="btn" id="c-submit">Reveal my Matrix <span class="arrow">→</span></button>
+    </div>
+    <div id="chart-output"></div>
+  </div>
+
+  <div class="panel" id="panel-compat">
+    <div class="card">
+      <div class="compat-people">
+        <div>
+          <div class="field-row"><label for="p1-name">You</label><input type="text" id="p1-name" placeholder="Name"></div>
+          <div class="field-row"><label for="p1-date">Date of birth</label><input type="date" id="p1-date"></div>
+        </div>
+        <div>
+          <div class="field-row"><label for="p2-name">The other person</label><input type="text" id="p2-name" placeholder="Name"></div>
+          <div class="field-row"><label for="p2-date">Date of birth</label><input type="date" id="p2-date"></div>
+        </div>
+      </div>
+      <div class="hint" id="compat-hint">Enter both birth dates to compare these charts.</div>
+      <button class="btn" id="compat-submit">See what happens when you meet <span class="arrow">→</span></button>
+    </div>
+    <div id="compat-output"></div>
+  </div>
+
+  <p class="footnote">An interpretive reading inspired by the octagram / Matrix&nbsp;of&nbsp;Destiny numerology method, generated for reflection — not a substitute for your own judgment.</p>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="sheet-backdrop"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title-text">
+  <div class="sheet-handle"></div>
+  <button class="sheet-close" id="sheet-close" aria-label="Close">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6,6 L18,18 M18,6 L6,18"/></svg>
+  </button>
+  <div class="sheet-eyebrow">
+    <div class="sheet-num" id="sheet-num"></div>
+    <div class="sheet-title" id="sheet-title-text"></div>
+  </div>
+  <div class="sheet-body loading" id="sheet-body">Reading the chart…</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function digitSum(n){ return String(Math.abs(Math.trunc(n))).split('').reduce((s,d)=>s+Number(d),0); }
+  function reduceArcana(n){
+    n = Math.abs(Math.trunc(n));
+    if(n===0) return 22;
+    while(n>22){ n = digitSum(n); if(n===0) return 22; }
+    return n;
+  }
+  const ARCANA = {1:"The Magician",2:"The High Priestess",3:"The Empress",4:"The Emperor",5:"The Hierophant",
+    6:"The Lovers",7:"The Chariot",8:"Strength",9:"The Hermit",10:"Wheel of Fortune",11:"Justice",
+    12:"The Hanged Man",13:"Death",14:"Temperance",15:"The Devil",16:"The Tower",17:"The Star",
+    18:"The Moon",19:"The Sun",20:"Judgement",21:"The World",22:"The Fool"};
+
+  function computeChart(dateStr){
+    const [y,m,d] = dateStr.split('-').map(Number);
+    const A = reduceArcana(d), B = reduceArcana(m), C = reduceArcana(digitSum(y));
+    const D = reduceArcana(A+B+C), E = reduceArcana(A+D), F = reduceArcana(B+D);
+    const G = reduceArcana(A+B), H = reduceArcana(C+D), CORE = reduceArcana(A+B+C+D);
+    // extended lines
+    const MONEY = reduceArcana(E+F);
+    const MOTHER = reduceArcana(B+C);
+    const FATHER = reduceArcana(A+C);
+    const HEALTH = reduceArcana(CORE+G);
+    return {dateStr,A,B,C,D,E,F,G,H,CORE,MONEY,MOTHER,FATHER,HEALTH};
+  }
+
+  function chartSummaryText(chart, name){
+    const who = name ? name : "this person";
+    return `Chart for ${who} (born ${chart.dateStr}):
+- Personality (Day): ${chart.A} — ${ARCANA[chart.A]}
+- Heart / Emotional line (Month): ${chart.B} — ${ARCANA[chart.B]}
+- Ancestral line (Year): ${chart.C} — ${ARCANA[chart.C]}
+- Life Purpose: ${chart.D} — ${ARCANA[chart.D]}
+- Talents: ${chart.E} — ${ARCANA[chart.E]}
+- Love Line: ${chart.F} — ${ARCANA[chart.F]}
+- Comfort Zone: ${chart.G} — ${ARCANA[chart.G]}
+- Karmic Tail: ${chart.H} — ${ARCANA[chart.H]}
+- Core Essence (center): ${chart.CORE} — ${ARCANA[chart.CORE]}
+- Money Line: ${chart.MONEY} — ${ARCANA[chart.MONEY]}
+- Mother's Line: ${chart.MOTHER} — ${ARCANA[chart.MOTHER]}
+- Father's Line: ${chart.FATHER} — ${ARCANA[chart.FATHER]}
+- Health & Vitality: ${chart.HEALTH} — ${ARCANA[chart.HEALTH]}`;
+  }
+
+  const SYSTEM_PRIMER = `You are a warm, perceptive reader of the "Matrix of Destiny" — an octagram-based numerology system where each birth date reduces to points numbered 1-22, each corresponding to a Major Arcana archetype (1 The Magician ... 22 The Fool, following the standard Tarot sequence). You give specific, grounded, emotionally intelligent readings — never generic horoscope filler. Write in flowing plain prose (no markdown headers, no bullet lists unless truly helpful), 2-4 short paragraphs. Speak directly to the person about the numbers actually given. Do not repeat disclaimers in every message — this is understood to be a reflective, entertainment-oriented practice, not a deterministic prediction.`;
+
+  /* category -> color mapping (CSS var names) */
+  const CAT_COLOR = {purpose:'--purpose', talents:'--purpose', money:'--money', love:'--love',
+    karma:'--ancestral', mother:'--ancestral', father:'--ancestral', comfort:'--money',
+    health:'--line', essence:'--pop'};
+
+  function octagramSVG(chart){
+    const size=300, cx=150, cy=150, rOuter=118;
+    const order=[{key:'A',label:'Personality',color:'var(--purpose)'},{key:'E',label:'Talents',color:'var(--purpose)'},
+      {key:'D',label:'Life Purpose',color:'var(--purpose)'},{key:'F',label:'Love Line',color:'var(--love)'},
+      {key:'B',label:'Heart Line',color:'var(--love)'},{key:'H',label:'Karmic Tail',color:'var(--ancestral)'},
+      {key:'C',label:'Ancestral',color:'var(--ancestral)'},{key:'G',label:'Comfort Zone',color:'var(--money)'}];
+    const pts = order.map((o,i)=>{
+      const ang=(-90+i*45)*Math.PI/180;
+      return {x:cx+rOuter*Math.cos(ang), y:cy+rOuter*Math.sin(ang), ...o, val:chart[o.key]};
+    });
+    const sq1=[pts[0],pts[2],pts[4],pts[6]].map(p=>`${p.x},${p.y}`).join(' ');
+    const sq2=[pts[1],pts[3],pts[5],pts[7]].map(p=>`${p.x},${p.y}`).join(' ');
+    let nodes='';
+    pts.forEach((p,i)=>{
+      const lx=cx+(rOuter+32)*Math.cos((-90+i*45)*Math.PI/180);
+      const ly=cy+(rOuter+32)*Math.sin((-90+i*45)*Math.PI/180);
+      nodes += `
+        <circle cx="${p.x}" cy="${p.y}" r="17" fill="${p.color}" stroke="#171613" stroke-width="0.5" stroke-opacity="0.15"/>
+        <text x="${p.x}" y="${p.y+5}" text-anchor="middle" class="point-num">${p.val}</text>
+        <text x="${lx}" y="${ly}" text-anchor="middle" class="point-label">${p.label}</text>`;
+    });
+    return `<svg viewBox="0 0 ${size+40} ${size+40}" width="100%" height="100%" style="max-width:340px" role="img" aria-label="Matrix chart with ${order.map(o=>o.label+' '+chart[o.key]).join(', ')}, Core Essence ${chart.CORE}">
+      <g transform="translate(20,20)">
+        <circle cx="${cx}" cy="${cy}" r="${rOuter+2}" fill="none" stroke="var(--line)" stroke-width="1"/>
+        <polygon points="${sq1}" fill="none" stroke="var(--ink)" stroke-width="0.75" opacity="0.35"/>
+        <polygon points="${sq2}" fill="none" stroke="var(--ink)" stroke-width="0.75" opacity="0.35"/>
+        <circle cx="${cx}" cy="${cy}" r="26" fill="var(--pop)"/>
+        <text x="${cx}" y="${cy+7}" text-anchor="middle" class="point-num" style="font-size:19px;fill:#FFF8F2;">${chart.CORE}</text>
+        ${nodes}
+      </g>
+    </svg>`;
+  }
+
+  function satelliteStrip(chart){
+    const items = [
+      {label:'Money Line', val: chart.MONEY, color:'var(--money)'},
+      {label:"Mother's Line", val: chart.MOTHER, color:'var(--ancestral)'},
+      {label:"Father's Line", val: chart.FATHER, color:'var(--ancestral)'},
+      {label:'Health', val: chart.HEALTH, color:'var(--line)'}
+    ];
+    return `<div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--line);">
+      ${items.map(it=>`
+        <div style="text-align:center;">
+          <div style="width:32px;height:32px;border:1.5px solid ${it.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display';font-weight:700;font-size:13px;margin:0 auto 6px;">${it.val}</div>
+          <div style="font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;">${it.label}</div>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  const CATEGORIES = [
+    {id:'purpose', title:'Life Purpose', desc:'Why you are here, and what you are meant to build or become.',
+      prompt:(s)=>`${SYSTEM_PRIMER}\n\n${s}\n\nGive a detailed reading of this person's Life Purpose, centered on their Life Purpose number and how it's shaped by their Personality and Core Essence numbers. What are they here to do? What tends to get in the way?`},
+    {id:'talents', title:'Talents', desc:'The natural gifts you carry and how they tend to show up.',
+      prompt:(s)=>`${SYSTEM_PRIMER}\n\n${s}\n\nGive a detailed reading of this person's Talents number: their natural abilities, how those gifts tend to show up day to day, and one way they may be underusing them.`},
+    {id:'money', title:'Money Line', desc:'Your relationship with money — where it flows, and where it stalls.',
+      prompt:(s)=>`${SYSTEM_PRIMER}\n\n${s}\n\nGive a detailed reading of this person's Money Line number, read alongside their Talents number. Where does money flow easily for them, and where does it tend to stall? Give one honest, specific pattern to watch.`},
+    {id:'love', title:'Love Line', desc:'How you love, what you need, and where friction shows up.',
+      prompt:(s)=>`${SYSTEM_PRIMER}\n\n${s}\n\nGive a detailed reading of this person's Love Line number, alongside their Heart Line number. How do they love and want to be loved? What pattern tends to repeat in their relationships?`},
+    {id:'karma', title:'Karmic Tail', desc:'The inherited pattern that quietly repeats until it is faced.',
+      prompt:(s)=>`${SYSTEM_PRIMER}\n\n${s}\n\nGive a detailed reading of this person's Karmic Tail number. What pattern seems to repeat quietly in their life until it's recognised and worked through? What does resolving it actually look like?`},
+    {id:'mother', title:"Mother's Line", desc:'What you carry forward from your maternal line.',
+      prompt:(s)=>`${SYSTEM_PRIMER}\n\n${s}\n\nGive a detailed reading of this person's Mother's Line number — the pattern, gift, or unspoken rule inherited through the maternal side of the family, and how it shapes them today.`},
+    {id:'father', title:"Father's Line", desc:'What you carry forward from your paternal line.',
+      prompt:(s)=>`${SYSTEM_PRIMER}\n\n${s}\n\nGive a detailed reading of this person's Father's Line number — the pattern, gift, or unspoken rule inherited through the paternal side of the family, and how it shapes them today.`},
+    {id:'comfort', title:'Comfort Zone', desc:'What feels safe, and what it costs to step past it.',
+      prompt:(s)=>`${SYSTEM_PRIMER}\n\n${s}\n\nGive a detailed reading of this person's Comfort Zone number. What does safety look like for them, and what growth are they avoiding by staying there?`},
+    {id:'health', title:'Health & Vitality', desc:'Where your energy runs low, and what tends to restore it.',
+      prompt:(s)=>`${SYSTEM_PRIMER}\n\n${s}\n\nGive a detailed reading of this person's Health & Vitality number. Where does their energy tend to run low, what stress pattern shows up physically, and what genuinely restores them? Keep this reflective and energetic in framing, not medical advice.`},
+    {id:'essence', title:'Core Essence', desc:'The number at the center — the thread running through it all.',
+      prompt:(s)=>`${SYSTEM_PRIMER}\n\n${s}\n\nGive a detailed reading of this person's Core Essence (center) number — the archetype that ties every other point in their chart together. What is the single thread running through their whole chart?`}
+  ];
+
+  /* ---------- deterministic compatibility scoring (pure math, no AI — reproducible) ---------- */
+  function circularCloseness(x, y){
+    // distance on the 1-22 wheel, converted to a 0-100 closeness score
+    const raw = Math.abs(x - y);
+    const dist = Math.min(raw, 22 - raw);
+    return Math.round(100 - (dist / 11) * 100);
+  }
+  function computeCompatMetrics(c1, c2){
+    const metrics = [
+      {label:'Attraction', color:'var(--love)', score: Math.round((circularCloseness(c1.F,c2.F) + circularCloseness(c1.CORE,c2.CORE)) / 2)},
+      {label:'Emotional Safety', color:'var(--ancestral)', score: circularCloseness(c1.B,c2.B)},
+      {label:'Communication', color:'var(--purpose)', score: Math.round((circularCloseness(c1.A,c2.B) + circularCloseness(c2.A,c1.B)) / 2)},
+      {label:'Growth Potential', color:'var(--money)', score: circularCloseness(c1.D,c2.D)},
+      {label:'Long-Term Stability', color:'var(--purpose)', score: Math.round((circularCloseness(c1.G,c2.G) + circularCloseness(c1.H,c2.H)) / 2)}
+    ];
+    const overall = Math.round(metrics.reduce((s,m)=>s+m.score,0) / metrics.length);
+    return {overall, metrics};
+  }
+
+  /* ---------- claude sample() wiring ---------- */
+  const SUB = {
+    token: localStorage.getItem('octagram_token') || null,
+    customerId: localStorage.getItem('octagram_customer') || null,
+    price: null
+  };
+  function saveSub(token, customerId){
+    SUB.token = token;
+    if(customerId){ SUB.customerId = customerId; localStorage.setItem('octagram_customer', customerId); }
+    localStorage.setItem('octagram_token', token);
+    renderSubStatus();
+  }
+  function clearSub(){
+    SUB.token = null;
+    localStorage.removeItem('octagram_token');
+    renderSubStatus();
+  }
+  function formatPrice(p){
+    if(!p) return 'a monthly subscription';
+    const amt = (p.amount/100).toFixed(2).replace(/\.00$/,'');
+    return `$${amt}/${p.interval || 'month'}`;
+  }
+  async function loadPrice(){
+    try{
+      const res = await fetch('/api/price');
+      if(res.ok) SUB.price = await res.json();
+    }catch(e){}
+  }
+  function renderSubStatus(){
+    const el = document.getElementById('sub-status');
+    if(SUB.token){
+      el.innerHTML = `Subscribed <a href="#" id="manage-billing">Manage billing</a>`;
+      document.getElementById('manage-billing').addEventListener('click', async (e)=>{
+        e.preventDefault();
+        if(!SUB.customerId) return;
+        const res = await fetch('/api/create-portal-session', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({customerId: SUB.customerId})
+        });
+        const data = await res.json();
+        if(data.url) window.location.href = data.url;
+      });
+    } else {
+      el.innerHTML = `Not subscribed`;
+    }
+  }
+  async function startCheckout(){
+    const res = await fetch('/api/create-checkout-session', {method:'POST'});
+    const data = await res.json();
+    if(data.url) window.location.href = data.url;
+    else alert(data.error || 'Could not start checkout.');
+  }
+  function paywallHTML(){
+    return `<div class="paywall">
+      <p>Unlock unlimited readings and chat with ${formatPrice(SUB.price)}.</p>
+      <button class="btn subscribe-btn">Subscribe</button>
+    </div>`;
+  }
+  function attachPaywallHandlers(container){
+    container.querySelectorAll('.subscribe-btn').forEach(b=>b.addEventListener('click', startCheckout));
+  }
+
+  async function handleRedirectBack(){
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id');
+    if(!sessionId) return;
+    try{
+      const res = await fetch('/api/verify-session?session_id='+encodeURIComponent(sessionId));
+      const data = await res.json();
+      if(res.ok && data.token) saveSub(data.token, data.customerId);
+    }catch(e){}
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  /* ---------- reading calls, gated ---------- */
+  async function askClaude(promptText, retry){
+    if(!SUB.token) return {ok:false};
+    try{
+      const res = await fetch('/api/reading', {
+        method:'POST',
+        headers:{'Content-Type':'application/json', 'Authorization':'Bearer '+SUB.token},
+        body: JSON.stringify({prompt: promptText})
+      });
+      if(res.status === 401 && !retry){
+        const refreshed = await tryRefreshToken();
+        if(refreshed) return askClaude(promptText, true);
+        clearSub();
+        return {ok:false};
+      }
+      if(res.status === 402){ clearSub(); return {ok:false}; }
+      const data = await res.json();
+      if(!res.ok) return {ok:true, text: data.error || "The reading didn't come through — please try again."};
+      return {ok:true, text: data.text};
+    }catch(err){
+      return {ok:true, text:"Couldn't reach the reading service. Check your connection and try again."};
+    }
+  }
+  async function tryRefreshToken(){
+    if(!SUB.token) return false;
+    try{
+      const res = await fetch('/api/refresh-token', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({token: SUB.token})
+      });
+      const data = await res.json();
+      if(res.ok && data.token){ saveSub(data.token, SUB.customerId); return true; }
+    }catch(e){}
+    return false;
+  }
+
+  /* ---------- tabs ---------- */
+  function switchTab(tab){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+tab));
+    document.querySelector('.wrap').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>switchTab(btn.dataset.tab));
+  });
+  document.getElementById('cta-compat').addEventListener('click', ()=>switchTab('compat'));
+  document.getElementById('cta-chart').addEventListener('click', ()=>switchTab('chart'));
+
+  /* ---------- bottom sheet ---------- */
+  const sheet = document.getElementById('sheet');
+  const sheetBackdrop = document.getElementById('sheet-backdrop');
+  function openSheet(){
+    sheet.classList.add('open');
+    sheetBackdrop.classList.add('open');
+    document.getElementById('sheet-close').focus();
+  }
+  function closeSheet(){
+    sheet.classList.remove('open');
+    sheetBackdrop.classList.remove('open');
+  }
+  document.getElementById('sheet-close').addEventListener('click', closeSheet);
+  sheetBackdrop.addEventListener('click', closeSheet);
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && sheet.classList.contains('open')) closeSheet(); });
+
+  /* ---------- chart flow ---------- */
+  let currentChart=null, currentName='';
+  const chartOutput = document.getElementById('chart-output');
+
+  document.getElementById('c-submit').addEventListener('click', ()=>{
+    const dateVal = document.getElementById('c-date').value;
+    const hint = document.getElementById('c-hint');
+    if(!dateVal){ hint.style.display='block'; return; }
+    hint.style.display='none';
+    currentName = document.getElementById('c-name').value.trim();
+    currentChart = computeChart(dateVal);
+    renderChart();
+  });
+
+  function renderChart(){
+    const chart = currentChart;
+    chartOutput.innerHTML = `
+      <div class="card" style="margin-top:18px;text-align:center;">
+        ${currentName ? `<div class="name-tag">${escapeHTML(currentName)}'s Matrix</div>` : `<div class="name-tag">Your Matrix</div>`}
+        <div class="chart-stage">${octagramSVG(chart)}</div>
+        <div class="chart-date">${chart.dateStr}</div>
+        ${satelliteStrip(chart)}
+      </div>
+      <div class="chapters" id="chapters"></div>
+      <div class="chat-box card">
+        <label>Ask about your chart</label>
+        <div class="chat-log" id="chat-log"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Why do I keep repeating this pattern?">
+          <button class="btn" id="chat-send" style="width:auto;">Ask</button>
+        </div>
+      </div>
+    `;
+    const list = document.getElementById('chapters');
+    CATEGORIES.forEach((cat,i)=>{
+      const num = String(i+1).padStart(2,'0');
+      const row = document.createElement('button');
+      row.className = 'chapter-row';
+      row.type = 'button';
+      row.style.setProperty('--cat', `var(${CAT_COLOR[cat.id] || '--line'})`);
+      row.innerHTML = `
+        <div class="chapter-num">${num}</div>
+        <div class="chapter-body">
+          <div class="chapter-title">${cat.title}</div>
+          <div class="chapter-desc">${cat.desc}</div>
+        </div>
+        <svg class="chapter-chevron" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2.5"><path d="M9,4 L17,12 L9,20"/></svg>
+      `;
+      row.addEventListener('click', ()=>openCategory(cat, num));
+      list.appendChild(row);
+    });
+    document.getElementById('chat-send').addEventListener('click', sendChatMsg);
+    document.getElementById('chat-input').addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendChatMsg(); });
+  }
+
+  async function openCategory(cat, num){
+    document.getElementById('sheet-num').textContent = num;
+    document.getElementById('sheet-num').style.setProperty('--cat', `var(${CAT_COLOR[cat.id] || '--line'})`);
+    document.getElementById('sheet-title-text').textContent = cat.title;
+    const bodyEl = document.getElementById('sheet-body');
+    bodyEl.className = 'sheet-body loading';
+    bodyEl.textContent = 'Reading the chart…';
+    openSheet();
+
+    if(!SUB.token){
+      bodyEl.className = 'sheet-body';
+      bodyEl.innerHTML = '';
+      bodyEl.appendChild(document.createRange().createContextualFragment(paywallHTML()));
+      attachPaywallHandlers(bodyEl);
+      return;
+    }
+    const summary = chartSummaryText(currentChart, currentName);
+    const result = await askClaude(cat.prompt(summary));
+    if(!result.ok){
+      bodyEl.className = 'sheet-body';
+      bodyEl.innerHTML = '';
+      bodyEl.appendChild(document.createRange().createContextualFragment(paywallHTML()));
+      attachPaywallHandlers(bodyEl);
+      return;
+    }
+    bodyEl.className = 'sheet-body';
+    bodyEl.textContent = result.text;
+  }
+
+  const chatHistory = [];
+  async function sendChatMsg(){
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if(!text || !currentChart) return;
+    if(!SUB.token){
+      const log = document.getElementById('chat-log');
+      log.innerHTML = paywallHTML();
+      attachPaywallHandlers(log);
+      return;
+    }
+    input.value='';
+    const log = document.getElementById('chat-log');
+    const userMsg = document.createElement('div');
+    userMsg.className='msg user'; userMsg.textContent=text;
+    log.appendChild(userMsg);
+    chatHistory.push({role:'user', text});
+    log.scrollTop = log.scrollHeight;
+
+    const aMsg = document.createElement('div');
+    aMsg.className='msg assistant loading'; aMsg.textContent='Reading…';
+    log.appendChild(aMsg);
+    log.scrollTop = log.scrollHeight;
+
+    const summary = chartSummaryText(currentChart, currentName);
+    const historyText = chatHistory.slice(0,-1).map(m=>`${m.role==='user'?'They':'You'}: ${m.text}`).join('\n');
+    const prompt = `${SYSTEM_PRIMER}\n\n${summary}\n\n${historyText ? 'Conversation so far:\n'+historyText+'\n\n' : ''}They now ask: "${text}"\n\nAnswer them directly and personally, grounded in their chart numbers above.`;
+    const result = await askClaude(prompt);
+    if(!result.ok){
+      aMsg.remove();
+      log.innerHTML += paywallHTML();
+      attachPaywallHandlers(log);
+      return;
+    }
+    aMsg.classList.remove('loading'); aMsg.textContent = result.text;
+    chatHistory.push({role:'assistant', text: result.text});
+    log.scrollTop = log.scrollHeight;
+  }
+
+  /* ---------- compatibility flow ---------- */
+  document.getElementById('compat-submit').addEventListener('click', async ()=>{
+    const d1 = document.getElementById('p1-date').value;
+    const d2 = document.getElementById('p2-date').value;
+    const hint = document.getElementById('compat-hint');
+    if(!d1 || !d2){ hint.style.display='block'; return; }
+    hint.style.display='none';
+    const n1 = document.getElementById('p1-name').value.trim() || 'You';
+    const n2 = document.getElementById('p2-name').value.trim() || 'The other person';
+    const chart1 = computeChart(d1), chart2 = computeChart(d2);
+    const out = document.getElementById('compat-output');
+    const {overall, metrics} = computeCompatMetrics(chart1, chart2);
+
+    const metricsHTML = metrics.map(m=>`
+      <div class="metric-row">
+        <div class="metric-top"><span class="metric-label">${m.label}</span><span class="metric-score">${m.score}</span></div>
+        <div class="metric-track"><div class="metric-fill" style="width:${m.score}%;background:${m.color};"></div></div>
+      </div>`).join('');
+
+    out.innerHTML = `
+      <div class="compat-vs">${escapeHTML(n1)} + ${escapeHTML(n2)}</div>
+      <div class="card">
+        <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
+          <div style="text-align:center">${octagramSVG(chart1)}<div class="chart-date">${escapeHTML(n1)}</div></div>
+          <div style="text-align:center">${octagramSVG(chart2)}<div class="chart-date">${escapeHTML(n2)}</div></div>
+        </div>
+        <div class="overall">
+          <div class="num">${overall}%</div>
+          <div class="label">Overall</div>
+        </div>
+        <div style="margin-top:20px;">${metricsHTML}</div>
+        <div class="reading loading" id="compat-reading" style="margin-top:20px;font-family:'Playfair Display';font-size:17px;line-height:1.6;color:var(--muted);font-style:italic;">Comparing the two charts…</div>
+      </div>
+    `;
+    const compatSummary = `${chartSummaryText(chart1,n1)}\n\n${chartSummaryText(chart2,n2)}\n\nDeterministic compatibility metrics already calculated: Overall ${overall}%, ${metrics.map(m=>`${m.label} ${m.score}`).join(', ')}.`;
+    const prompt = `${SYSTEM_PRIMER}\n\n${compatSummary}\n\nWrite a compatibility reading comparing these two charts, referencing the metrics above where natural. Cover, in flowing prose across a few paragraphs: (1) what draws them to each other and where they naturally click, (2) the honest friction point — where this pairing tends to struggle or could fail, grounded in the actual number contrast, and (3) the shared life lesson this pairing is here to teach both people. Be specific to their numbers, not generic relationship advice.`;
+
+    if(!SUB.token){
+      const readingDiv = document.getElementById('compat-reading');
+      readingDiv.className = '';
+      readingDiv.innerHTML = '';
+      readingDiv.appendChild(document.createRange().createContextualFragment(paywallHTML()));
+      attachPaywallHandlers(readingDiv);
+      return;
+    }
+
+    const readingDiv = document.getElementById('compat-reading');
+    const result = await askClaude(prompt);
+    if(!result.ok){
+      readingDiv.className = '';
+      readingDiv.innerHTML = '';
+      readingDiv.appendChild(document.createRange().createContextualFragment(paywallHTML()));
+      attachPaywallHandlers(readingDiv);
+      return;
+    }
+    readingDiv.className = '';
+    readingDiv.style.fontStyle = 'normal';
+    readingDiv.style.color = 'var(--ink)';
+    readingDiv.textContent = result.text;
+    renderCompatChat(out, compatSummary, n1, n2);
+  });
+
+  const compatChatHistory = [];
+  function renderCompatChat(out, compatSummary, n1, n2){
+    const box = document.createElement('div');
+    box.className = 'chat-box card';
+    box.style.marginTop = '18px';
+    box.innerHTML = `
+      <label>Ask about this pairing</label>
+      <div class="chat-log" id="compat-chat-log"></div>
+      <div class="chat-input-row">
+        <input type="text" id="compat-chat-input" placeholder="Why do we keep clashing over the same thing?">
+        <button class="btn" id="compat-chat-send" style="width:auto;">Ask</button>
+      </div>
+    `;
+    out.appendChild(box);
+    const send = async ()=>{
+      const input = document.getElementById('compat-chat-input');
+      const text = input.value.trim();
+      if(!text) return;
+      const log = document.getElementById('compat-chat-log');
+      if(!SUB.token){
+        log.innerHTML = paywallHTML();
+        attachPaywallHandlers(log);
+        return;
+      }
+      input.value='';
+      const userMsg = document.createElement('div');
+      userMsg.className='msg user'; userMsg.textContent=text;
+      log.appendChild(userMsg);
+      compatChatHistory.push({role:'user', text});
+      log.scrollTop = log.scrollHeight;
+
+      const aMsg = document.createElement('div');
+      aMsg.className='msg assistant loading'; aMsg.textContent='Reading…';
+      log.appendChild(aMsg);
+      log.scrollTop = log.scrollHeight;
+
+      const historyText = compatChatHistory.slice(0,-1).map(m=>`${m.role==='user'?'They':'You'}: ${m.text}`).join('\n');
+      const prompt = `${SYSTEM_PRIMER}\n\n${compatSummary}\n\n${historyText ? 'Conversation so far:\n'+historyText+'\n\n' : ''}They now ask about the compatibility between ${n1} and ${n2}: "${text}"\n\nAnswer directly and personally, grounded in both people's chart numbers above.`;
+      const result = await askClaude(prompt);
+      if(!result.ok){
+        aMsg.remove();
+        log.innerHTML += paywallHTML();
+        attachPaywallHandlers(log);
+        return;
+      }
+      aMsg.classList.remove('loading'); aMsg.textContent = result.text;
+      compatChatHistory.push({role:'assistant', text: result.text});
+      log.scrollTop = log.scrollHeight;
+    };
+    document.getElementById('compat-chat-send').addEventListener('click', send);
+    document.getElementById('compat-chat-input').addEventListener('keydown', (e)=>{ if(e.key==='Enter') send(); });
+  }
+
+  function escapeHTML(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+  (async function init(){
+    renderSubStatus();
+    await loadPrice();
+    renderSubStatus();
+    await handleRedirectBack();
+  })();
+})();
+</script>
+</body>
+</html>
